@@ -1,0 +1,24 @@
+{% extends "template.html" %}
+{% set active_page = "new" %}
+{% block title %}New Poll{% endblock %}
+{% block content %}
+    <div class="well">
+        <form class="form-horizontal" method="POST" name="newpoll">
+            <fieldset>
+                {{ form.hidden_tag() }}
+                <div class="form-group">
+                    <label for="inputTitle">Title</label>
+                    {{ form.title(class="form-control", **{"required":""}) }}
+                </div>
+                <div class="form-group">
+                    <label for="inputOptions">Options</label>
+                    {{ form.options(class="form-control", **{"required":""}) }}
+                    <strong>Separate options with a new line.</strong>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-lg pull-right">Submit</button>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "template.html" %}
+{% block title %}Results of Poll {{ poll.id }}{% endblock %}
+{% block content %}
+    <div class="jumbotron">
+    <h1>{{ poll.title }}</h1>
+    <p>The results are in!</p>
+    </div>
+    <div class="well">
+    {% for bar in bars %}
+        <h3>{{ bar }}</h3>
+        <div class="progress">
+            <div class="progress-bar progress-bar-info" role="progressbar" style="width: {{ bars[bar] }}%">
+                <span>{{ bars[bar] }}%</span>
+            </div>
+        </div>
+        <br>
+    {% endfor %}
+    </div>
+{% endblock %}

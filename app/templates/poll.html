@@ -1,0 +1,19 @@
+{% extends "template.html" %}
+{% block title %}Poll {{ poll.id }}{% endblock %}
+{% block content %}
+    <div class="jumbotron">
+    <h1>{{ poll.title }}</h1>
+    </div>
+    <form class="form-horizontal" method="POST" action="">
+        <fieldset>
+            <div class="form-group">
+            {% for option in poll.load_options() %}
+                <input type="radio" name="option" value="{{ option }}">{{ option }}<br>
+            {% endfor %}
+            </div>
+            <div class="form-group">
+                <input type="submit" class="btn btn-large btn-primary">
+            </div>
+        </fieldset>
+    </form>
+{% endblock %}
