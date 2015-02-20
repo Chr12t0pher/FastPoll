@@ -64,3 +64,22 @@ def results(identifier):
 @app.route("/listpolls")
 def list_polls():
     return render_template("listpolls.html", polls=Poll.query.all())
+
+
+@app.route("/poll/<identifier>/results/json")
+def results_json(identifier):
+    pass
+    poll_obj = Poll.query.filter_by(id=identifier).first()
+    if poll_obj is None:
+        abort(404)
+    total = 0
+    votes = loads(poll_obj.votes)
+    for i in votes:
+        total += int(votes[i])
+    bars = {}
+    for i in votes:
+        try:
+            bars[i] = int((votes[i] / total) * 100)
+        except ZeroDivisionError:
+            bars[i] = 0
+    return dumps(bars)
