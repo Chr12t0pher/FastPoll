@@ -9,11 +9,43 @@
     {% for bar in bars %}
         <h3>{{ bar }}</h3>
         <div class="progress">
-            <div class="progress-bar progress-bar-info" role="progressbar" style="width: {{ bars[bar] }}%">
-                <span>{{ bars[bar] }}%</span>
+            <div id="{{ bar }}progressbar" class="progress-bar progress-bar-info" role="progressbar" style="width: {{ bars[bar] }}%">
+                <span id="{{ bar }}span">{{ bars[bar] }}%</span>
             </div>
         </div>
         <br>
     {% endfor %}
     </div>
+{% endblock %}
+{% block js %}
+<script type="text/javascript">
+    setInterval(
+            function()
+            {
+                $.getJSON(
+                        window.location.href + "/json",
+                        {},
+                        function(data)
+                        {
+                            $.each(data, function(bar, width) {
+                                var progressbar = document.getElementById(bar + "progressbar"); // Get Progress Bar
+                                var span = document.getElementById(bar + "span"); // Get Span
+                                var currentwidth = Math.round($(progressbar).width() / $(progressbar).parent().width() * 100)
+                                if (width > currentwidth) { // If the new width > old width, flash green.
+                                    $(progressbar).switchClass("progress-bar-info", "progress-bar-success");
+                                }
+                                else if (width < currentwidth){
+                                    $(progressbar).switchClass("progress-bar-info", "progress-bar-warning");
+                                }
+                                $(progressbar).css("width", (width + "%"));
+                                $(span).text(width + "%");
+                                setTimeout(function() {
+                                    $(progressbar).switchClass("progress-bar-success", "progress-bar-info")
+                                    $(progressbar).switchClass("progress-bar-warning", "progress-bar-info")
+                                },1500);
+                            });
+                        });
+            },
+    2000);
+</script>
 {% endblock %}
