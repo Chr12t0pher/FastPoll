@@ -6,4 +6,5 @@ from app import db
 
 class CreatePoll(Form):
     title = StringField("Title")
+    desc = StringField("Description")
     options = TextAreaField("Options")

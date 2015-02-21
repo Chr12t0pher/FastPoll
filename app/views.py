@@ -3,6 +3,13 @@ from app import app, db
 from app.models import Poll
 from app.forms import CreatePoll
 from json import loads, dumps
+from operator import itemgetter
+import logging
+from os import path
+
+logging.basicConfig(filename=path.abspath(path.dirname(__file__))+ "/flasklog.log", level=logging.DEBUG)
+print("Test")
+
 
 @app.route("/")
 def home():
@@ -18,6 +25,7 @@ def new():
             votes_list[option.strip("\r")] = 0
         create_poll.options.data.strip("\r")
         new_poll = Poll(title=create_poll.title.data,
+                        desc=create_poll.desc.data,
                         options=dumps(create_poll.options.data.splitlines()),
                         votes=dumps(votes_list))
         db.session.add(new_poll)
@@ -52,12 +60,13 @@ def results(identifier):
     votes = loads(poll_obj.votes)
     for i in votes:
         total += int(votes[i])
-    bars = {}
+    bars = []
     for i in votes:
         try:
-            bars[i] = int((votes[i] / total) * 100)
+            bars.append((i, int((votes[i] / total) * 100)))
         except ZeroDivisionError:
-            bars[i] = 0
+            bars.append(i, 0)
+    bars = sorted(bars, key=itemgetter(1), reverse=True)
     return render_template("results.html", bars=bars, poll=poll_obj)
 
 
@@ -68,12 +77,13 @@ def list_polls():
 
 @app.route("/poll/<identifier>/results/json")
 def results_json(identifier):
-    pass
     poll_obj = Poll.query.filter_by(id=identifier).first()
+    logging.log(logging.DEBUG, "Loaded poll_obj " + str(poll_obj))
     if poll_obj is None:
         abort(404)
     total = 0
     votes = loads(poll_obj.votes)
+    logging.log(logging.DEBUG, "Votes " + str(votes))
     for i in votes:
         total += int(votes[i])
     bars = {}
@@ -82,4 +92,5 @@ def results_json(identifier):
             bars[i] = int((votes[i] / total) * 100)
         except ZeroDivisionError:
             bars[i] = 0
+    logging.log(logging.DEBUG, "Bars " + str(bars))
     return dumps(bars)

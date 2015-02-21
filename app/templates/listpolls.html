@@ -7,7 +7,7 @@
         <p class="lead">All available polls are below.</p>
     </div>
     <ul>
-        {% for poll in  polls%}
+        {% for poll in polls%}
         <li><a href="/poll/{{ poll.id }}">{{ poll.title }}</a></li>
         {% endfor %}
     </ul>

@@ -3,17 +3,19 @@
 {% block content %}
     <div class="jumbotron">
     <h1>{{ poll.title }}</h1>
-    <p>The results are in!</p>
+    <p>{{ poll.desc }}</p>
     </div>
     <div class="well">
     {% for bar in bars %}
-        <h3>{{ bar }}</h3>
+        <div id="{{ bar[0] }} main" class="bardiv" data-value="{{ bars[bar] }}">
+        <h3>{{ bar[0] }}</h3>
         <div class="progress">
-            <div id="{{ bar }}progressbar" class="progress-bar progress-bar-info" role="progressbar" style="width: {{ bars[bar] }}%">
-                <span id="{{ bar }}span">{{ bars[bar] }}%</span>
+            <div id="{{ bar[0] }}progressbar" class="progress-bar progress-bar-info" role="progressbar" style="width: {{ bar[1] }}%">
+                <span id="{{ bar[0] }}span">{{ bar[1] }}%</span>
             </div>
         </div>
-        <br>
+            <br>
+        </div>
     {% endfor %}
     </div>
 {% endblock %}
@@ -28,24 +30,39 @@
                         function(data)
                         {
                             $.each(data, function(bar, width) {
-                                var progressbar = document.getElementById(bar + "progressbar"); // Get Progress Bar
-                                var span = document.getElementById(bar + "span"); // Get Span
-                                var currentwidth = Math.round($(progressbar).width() / $(progressbar).parent().width() * 100)
-                                if (width > currentwidth) { // If the new width > old width, flash green.
-                                    $(progressbar).switchClass("progress-bar-info", "progress-bar-success");
-                                }
-                                else if (width < currentwidth){
-                                    $(progressbar).switchClass("progress-bar-info", "progress-bar-warning");
-                                }
-                                $(progressbar).css("width", (width + "%"));
-                                $(span).text(width + "%");
-                                setTimeout(function() {
-                                    $(progressbar).switchClass("progress-bar-success", "progress-bar-info")
-                                    $(progressbar).switchClass("progress-bar-warning", "progress-bar-info")
-                                },1500);
-                            });
+                                var newwidth = Math.round(width);
+                                var progressbar = document.getElementById(bar + "progressbar"); // Get progress bar
+                                var span = document.getElementById(bar + "span"); // Get span
+                                var currentwidth = parseInt((progressbar.style.width).substring(0, progressbar.style.width.length - 1));
+
+                                if (newwidth === currentwidth) {}
+                                else {
+                                    if (newwidth > currentwidth) { // If the new width > old width, flash green.
+                                        $(progressbar).switchClass("progress-bar-info", "progress-bar-success");
+                                    }
+                                    else if (newwidth < currentwidth){ // If new width < old width, flash orange.
+                                        $(progressbar).switchClass("progress-bar-info", "progress-bar-warning");
+                                    }
+
+                                    $(document.getElementById(bar + " main")).attr("data-value", newwidth); // Change data value
+                                    $(span).text(newwidth + "%"); // Change text
+                                    var newwidth = newwidth + "%"
+                                    console.log(newwidth)
+                                    $(progressbar).animate({"width": newwidth });
+
+                                    var $well = $(".well");
+                                    $well.find(".bardiv").sort(function (a, b) { // Sort the progress bars by value
+                                        return b.dataset.value - a.dataset.value;
+                                    }).appendTo($well);
+
+                                    setTimeout(function() { // Reset colours.
+                                        $(progressbar).switchClass("progress-bar-success", "progress-bar-info");
+                                        $(progressbar).switchClass("progress-bar-warning", "progress-bar-info");
+                                    },500);
+                            }});
+
                         });
             },
-    2000);
+    1500);
 </script>
 {% endblock %}
