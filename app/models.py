@@ -8,6 +8,7 @@ class Poll(db.Model):
     desc = db.Column(db.String)
     options = db.Column(db.String)  # List of values in JSON.
     votes = db.Column(db.String)  # Number of votes for each option in JSON.
+    voters = db.Column(db.String)  # List of IP addresses that have voted.
 
     def load_options(self):
         return loads(self.options)
