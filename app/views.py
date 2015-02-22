@@ -69,7 +69,7 @@ def results(identifier):
         try:
             bars.append((i, int((votes[i] / total) * 100)))
         except ZeroDivisionError:
-            bars.append(i, 0)
+            bars.append((i, 0))
     bars = sorted(bars, key=itemgetter(1), reverse=True)
     return render_template("results.html", bars=bars, poll=poll_obj)
 
