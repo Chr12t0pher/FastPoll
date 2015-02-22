@@ -1,14 +1,10 @@
-from flask import render_template, abort, url_for, redirect, request
+from flask import render_template, abort, url_for, redirect, request, flash
 from app import app, db
 from app.models import Poll
 from app.forms import CreatePoll
 from json import loads, dumps
 from operator import itemgetter
-import logging
-from os import path
 import uuid
-
-logging.basicConfig(filename=path.abspath(path.dirname(__file__))+ "/flasklog.log", level=logging.DEBUG)
 
 
 @app.route("/")
@@ -28,7 +24,8 @@ def new():
                         title=create_poll.title.data,
                         desc=create_poll.desc.data,
                         options=dumps(create_poll.options.data.splitlines()),
-                        votes=dumps(votes_list))
+                        votes=dumps(votes_list),
+                        voters=dumps([]))
         db.session.add(new_poll)
         db.session.commit()
         return redirect(url_for("poll", identifier=Poll.query.filter_by(title=create_poll.title.data).first().id))
@@ -42,14 +39,19 @@ def poll(identifier):
         abort(404)
     if request.method == "POST":
         current_poll = Poll.query.filter_by(id=identifier).first()
+        current_voters = loads(current_poll.voters)
         current_votes = loads(current_poll.votes)
+        if request.remote_addr in current_voters:
+            flash("You've already voted on this poll!", "warning")
+            return redirect(url_for("results", identifier=identifier))
         current_votes[request.form["option"]] += 1
         current_poll.votes = dumps(current_votes)
+        current_voters.append(request.remote_addr)
+        current_poll.voters = dumps(current_voters)
         db.session.add(current_poll)
         db.session.commit()
         return redirect(url_for("results", identifier=identifier))
-    else:
-        return render_template("poll.html", poll=poll_obj)
+    return render_template("poll.html", poll=poll_obj)
 
 
 @app.route("/poll/<identifier>/results")
@@ -79,20 +81,16 @@ def list_polls():
 @app.route("/poll/<identifier>/results/json")
 def results_json(identifier):
     poll_obj = Poll.query.filter_by(id=identifier).first()
-    logging.log(logging.DEBUG, "Loaded poll_obj " + str(poll_obj))
     if poll_obj is None:
         abort(404)
     total = 0
     votes = loads(poll_obj.votes)
-    logging.log(logging.DEBUG, "Votes " + str(votes))
     for i in votes:
         total += int(votes[i])
     bars = {}
     for i in votes:
         try:
-            logging.log(logging.DEBUG, "Got into try!")
             bars[i] = int((votes[i] / total) * 100)
         except ZeroDivisionError:
             bars[i] = 0
-    logging.log(logging.DEBUG, "Bars " + str(bars))
     return dumps(bars)
