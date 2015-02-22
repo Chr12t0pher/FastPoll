@@ -1,0 +1,23 @@
+{% extends "template.html" %}
+{% set active_page = "" %}
+{% block title %}List Polls{% endblock %}
+{% block content %}
+    <div class="jumbotron">
+        <h1>All Polls.</h1>
+        <p class="lead">All available polls are below.</p>
+    </div>
+    <table class="table table-condensed">
+        <tr>
+            <th>Title</th>
+            <th>Vote</th>
+            <th>Results</th>
+        </tr>
+        {% for poll in polls %}
+        <tr>
+            <td>{{ poll.title }}</td>
+            <td><a href="/poll/{{ poll.id }}">Vote</a></td>
+            <td><a href="/poll/{{ poll.id }}/results">Results</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+{% endblock %}
