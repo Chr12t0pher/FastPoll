@@ -1,7 +1,11 @@
-from os import path
+from os import path, environ
 
 WTF_CSRF_ENABLED = True
-SECRET_KEY = "8a7c5c62e3dd7ba27aa280e8d37055e5953ca35881883875c83810b791dc533c"
+
+if environ.get("SECRET_KEY") is None:
+    SECRET_KEY = "123CHANGEME"
+else:
+    SECRET_KEY = environ["SECRET_KEY"]
 
 basedir = path.abspath(path.dirname(__file__))
 SQLALCHEMY_DATABASE_URI = "sqlite:///" + path.join(basedir, "database.db")
