@@ -13,6 +13,7 @@
             <ul class="nav nav-pills pull-right">
                 <li role="presentation"{% if "home" == active_page %} class="active"{% endif %}><a href="/">Home</a></li>
                 <li role="presentation"{% if "new" == active_page %} class="active"{% endif %}><a href="/new">New Poll</a></li>
+                <li role="presentation"{% if "list" == active_page %} class="active"{% endif %}><a href="/list">Poll List</a></li>
                 {% if "poll" == active_page %}<li role="presentation" class="active"><a href="javascript:void(0);">Vote</a></li>{% endif %}
                 {% if "results" == active_page %}<li role="presentation" class="active"><a href="javascript:void(0);">Results</a></li>{% endif %}
             </ul>
