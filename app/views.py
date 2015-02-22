@@ -6,9 +6,9 @@ from json import loads, dumps
 from operator import itemgetter
 import logging
 from os import path
+import uuid
 
 logging.basicConfig(filename=path.abspath(path.dirname(__file__))+ "/flasklog.log", level=logging.DEBUG)
-print("Test")
 
 
 @app.route("/")
@@ -24,7 +24,8 @@ def new():
         for option in create_poll.options.data.split("\n"):
             votes_list[option.strip("\r")] = 0
         create_poll.options.data.strip("\r")
-        new_poll = Poll(title=create_poll.title.data,
+        new_poll = Poll(id=str(uuid.uuid4().int >> 64),
+                        title=create_poll.title.data,
                         desc=create_poll.desc.data,
                         options=dumps(create_poll.options.data.splitlines()),
                         votes=dumps(votes_list))
@@ -89,6 +90,7 @@ def results_json(identifier):
     bars = {}
     for i in votes:
         try:
+            logging.log(logging.DEBUG, "Got into try!")
             bars[i] = int((votes[i] / total) * 100)
         except ZeroDivisionError:
             bars[i] = 0
