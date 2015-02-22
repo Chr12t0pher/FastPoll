@@ -1,5 +1,6 @@
 {% extends "template.html" %}
-{% block title %}Results of Poll {{ poll.id }}{% endblock %}
+{% set active_page = "results" %}
+{% block title %}{{ poll.title }} - Results{% endblock %}
 {% block content %}
     <div class="jumbotron">
     <h1>{{ poll.title }}</h1>
