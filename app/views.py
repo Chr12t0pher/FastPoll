@@ -25,7 +25,8 @@ def new():
                         desc=create_poll.desc.data,
                         options=dumps(create_poll.options.data.splitlines()),
                         votes=dumps(votes_list),
-                        voters=dumps([]))
+                        voters=dumps([]),
+                        public=create_poll.public.data)
         db.session.add(new_poll)
         db.session.commit()
         return redirect(url_for("poll", identifier=Poll.query.filter_by(title=create_poll.title.data).first().id))
@@ -73,9 +74,9 @@ def results(identifier):
     return render_template("results.html", bars=bars, poll=poll_obj)
 
 
-@app.route("/listpolls")
+@app.route("/list")
 def list_polls():
-    return render_template("listpolls.html", polls=Poll.query.all())
+    return render_template("list.html", polls=Poll.query.filter_by(public=True))
 
 
 @app.route("/poll/<identifier>/results/json")
@@ -94,3 +95,8 @@ def results_json(identifier):
         except ZeroDivisionError:
             bars[i] = 0
     return dumps(bars)
+
+
+@app.errorhandler(404)
+def not_found(e):
+    return render_template("404.html"), 404
