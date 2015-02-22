@@ -15,9 +15,8 @@
                     {{ form.desc(class="form-control", **{"requried":""}) }}
                 </div>
                 <div class="form-group">
-                    <label for="inputOptions">Options</label>
-                    {{ form.options(class="form-control", **{"required":""}) }}
-                    <strong>Separate options with a new line.</strong>
+                    <label for="inputOptions">Options (Separate with a new line)</label>
+                    {{ form.options(class="form-control expanding", **{"required":""}) }}
                 </div>
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary btn-lg pull-right">Submit</button>
