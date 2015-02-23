@@ -20,13 +20,20 @@ def new():
         for option in create_poll.options.data.split("\n"):
             votes_list[option.strip("\r")] = 0
         create_poll.options.data.strip("\r")
-        new_poll = Poll(id=str(uuid.uuid4().int >> 64),
+
+        def gen_identifier():
+            while True:
+                identifier = str(uuid.uuid4().int >> 64)
+                if Poll.query.filter_by(id=identifier).first() is None:
+                    return identifier
+        new_poll = Poll(id=gen_identifier(),
                         title=create_poll.title.data,
                         desc=create_poll.desc.data,
                         options=dumps(create_poll.options.data.splitlines()),
                         votes=dumps(votes_list),
                         voters=dumps([]),
-                        public=create_poll.public.data)
+                        public=create_poll.public.data,
+                        ip=create_poll.ip.data)
         db.session.add(new_poll)
         db.session.commit()
         return redirect(url_for("poll", identifier=Poll.query.filter_by(title=create_poll.title.data).first().id))
@@ -40,15 +47,17 @@ def poll(identifier):
         abort(404)
     if request.method == "POST":
         current_poll = Poll.query.filter_by(id=identifier).first()
-        current_voters = loads(current_poll.voters)
+        if current_poll.ip:  # If IP checking is enabled.
+            current_voters = loads(current_poll.voters)
+
+            if request.remote_addr in current_voters:
+                flash("You've already voted on this poll!", "warning")
+                return redirect(url_for("results", identifier=identifier))
+            current_voters.append(request.remote_addr)
+            current_poll.voters = dumps(current_voters)
         current_votes = loads(current_poll.votes)
-        if request.remote_addr in current_voters:
-            flash("You've already voted on this poll!", "warning")
-            return redirect(url_for("results", identifier=identifier))
         current_votes[request.form["option"]] += 1
         current_poll.votes = dumps(current_votes)
-        current_voters.append(request.remote_addr)
-        current_poll.voters = dumps(current_voters)
         db.session.add(current_poll)
         db.session.commit()
         return redirect(url_for("results", identifier=identifier))
