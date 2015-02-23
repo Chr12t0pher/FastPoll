@@ -9,6 +9,7 @@ class CreatePoll(Form):
     desc = StringField("Description")
     options = TextAreaField("Options")
     public = BooleanField("Public")
+    ip = BooleanField("IP")
 
     def validate_options(self, field):
         options = []
