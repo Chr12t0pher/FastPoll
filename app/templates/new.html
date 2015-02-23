@@ -19,7 +19,8 @@
                     {{ form.options(class="form-control expanding", **{"required":""}) }}
                 </div>
                 <div class="form-group" style="margin-bottom: 0">
-                    <label class="pull-left"><strong>Public Poll </strong> {{ form.public(class="checkbox-inline") }}</label>
+                    <label class="pull-left" style="margin-right: 10px"><strong>Public Poll </strong> {{ form.public(class="checkbox-inline") }}</label>
+                    <label class="pull-left"><strong data-toggle="tooltip" title="Uncheck to allow IP's to <br/> vote more than once.">IP Checking </strong> {{ form.ip(class="checkbox-inline", **{"checked":""}) }}</label>
                     <button type="submit" class="btn btn-primary btn-lg pull-right">Submit</button>
                 </div>
             </fieldset>
@@ -37,4 +38,11 @@
     (adsbygoogle = window.adsbygoogle || []).push({});
     </script>
     </div>
+{% endblock %}
+{% block js %}
+<script>
+    $(function () {
+  $('[data-toggle="tooltip"]').tooltip({placement:"right", content:function(){return $(this).attr("title")}});
+});
+</script>
 {% endblock %}
