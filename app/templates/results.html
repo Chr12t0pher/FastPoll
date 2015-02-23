@@ -9,7 +9,7 @@
     <div class="well">
     {% for bar in bars %}
         <div id="{{ bar[0] }} main" class="bardiv" data-value="{{ bars[bar] }}">
-        <h3>{{ bar[0] }}</h3>
+        <h3>{{ bar[0] }} <small class="pull-right"><span id="{{ bar[0] }}votes">{{ bar[2] }} Votes</span></small></h3>
         <div class="progress">
             <div id="{{ bar[0] }}progressbar" class="progress-bar progress-bar-info" role="progressbar" style="width: {{ bar[1] }}%">
                 <span id="{{ bar[0] }}span">{{ bar[1] }}%</span>
@@ -30,10 +30,12 @@
                         {},
                         function(data)
                         {
-                            $.each(data, function(bar, width) {
+                            $.each(data, function(name, content) {
+                                var width = content[0], count = content[1];
                                 var newwidth = Math.round(width);
-                                var progressbar = document.getElementById(bar + "progressbar"); // Get progress bar
-                                var span = document.getElementById(bar + "span"); // Get span
+                                var progressbar = document.getElementById(name + "progressbar"); // Get progress name
+                                var span = document.getElementById(name + "span"); // Get span
+                                var votes = document.getElementById(name + "votes");  // Get vote counter
                                 var currentwidth = parseInt((progressbar.style.width).substring(0, progressbar.style.width.length - 1));
 
                                 if (newwidth === currentwidth) {}
@@ -45,11 +47,10 @@
                                         $(progressbar).switchClass("progress-bar-info", "progress-bar-warning");
                                     }
 
-                                    $(document.getElementById(bar + " main")).attr("data-value", newwidth); // Change data value
+                                    $(votes).text(count + " Votes");
+                                    $(document.getElementById(name + " main")).attr("data-value", newwidth); // Change data value
                                     $(span).text(newwidth + "%"); // Change text
-                                    var newwidth = newwidth + "%"
-                                    console.log(newwidth)
-                                    $(progressbar).animate({"width": newwidth });
+                                    $(progressbar).animate({"width": (newwidth + "%") }); // Change width
 
                                     var $well = $(".well");
                                     $well.find(".bardiv").sort(function (a, b) { // Sort the progress bars by value

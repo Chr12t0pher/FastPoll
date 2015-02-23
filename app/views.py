@@ -76,9 +76,9 @@ def results(identifier):
     bars = []
     for i in votes:
         try:
-            bars.append((i, int((votes[i] / total) * 100)))
+            bars.append((i, int((votes[i] / total) * 100), votes[i]))
         except ZeroDivisionError:
-            bars.append((i, 0))
+            bars.append((i, 0, votes[i]))
     bars = sorted(bars, key=itemgetter(1), reverse=True)
     return render_template("results.html", bars=bars, poll=poll_obj)
 
@@ -97,13 +97,13 @@ def results_json(identifier):
     votes = loads(poll_obj.votes)
     for i in votes:
         total += int(votes[i])
-    bars = {}
+    data = {}
     for i in votes:
         try:
-            bars[i] = int((votes[i] / total) * 100)
+            data[i] = [int((votes[i] / total) * 100), votes[i]]
         except ZeroDivisionError:
-            bars[i] = 0
-    return dumps(bars)
+            data[i] = [0, votes[i]]
+    return dumps(data)
 
 
 @app.errorhandler(404)
