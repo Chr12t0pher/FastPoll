@@ -10,7 +10,7 @@
         <fieldset>
             <div class="form-group">
             {% for option in poll.load_options() %}
-                <input type="radio" name="option" value="{{ option }}">{{ option }}<br>
+                <input type="radio" name="option" value="{{ option }}" required="true">{{ option }}<br>
             {% endfor %}
             </div>
             <div class="form-group">
