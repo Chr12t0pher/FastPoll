@@ -1,11 +1,14 @@
-from flask import render_template, abort, url_for, redirect, request, flash
+from flask import render_template, abort, url_for, redirect, request, flash, Response
 from app import app, db
 from app.models import Poll
 from app.forms import CreatePoll
 from json import loads, dumps
 from operator import itemgetter
+import redis
 import uuid
 
+
+red = redis.StrictRedis()
 
 @app.route("/")
 def home():
@@ -60,6 +63,17 @@ def poll(identifier):
         current_poll.votes = dumps(current_votes)
         db.session.add(current_poll)
         db.session.commit()
+        votes = loads(current_poll.votes)
+        total = 0
+        for i in votes:
+            total += int(votes[i])
+        data = {}
+        for i in votes:
+            try:
+                data[i] = [int((votes[i] / total) * 100), votes[i]]
+            except ZeroDivisionError:
+                data[i] = [0, votes[i]]
+        red.publish(identifier, dumps(data).encode("utf-8"))
         return redirect(url_for("results", identifier=identifier))
     return render_template("poll.html", poll=poll_obj)
 
@@ -104,6 +118,18 @@ def results_json(identifier):
         except ZeroDivisionError:
             data[i] = [0, votes[i]]
     return dumps(data)
+
+
+@app.route("/poll/<identifier>/results/stream")
+def results_stream(identifier):
+
+    def stream():
+        pubsub = red.pubsub()
+        pubsub.subscribe(identifier)
+        for x in pubsub.listen():
+            if x["data"] != 1:
+                yield "data: %s\n\n" % x["data"]
+    return Response(stream(), mimetype="text/event-stream")
 
 
 @app.errorhandler(404)
