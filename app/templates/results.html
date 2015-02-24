@@ -22,49 +22,63 @@
 {% endblock %}
 {% block js %}
 <script type="text/javascript">
-    setInterval(
-            function()
-            {
-                $.getJSON(
-                        window.location.href + "/json",
-                        {},
-                        function(data)
-                        {
-                            $.each(data, function(name, content) {
-                                var width = content[0], count = content[1];
-                                var newwidth = Math.round(width);
-                                var progressbar = document.getElementById(name + "progressbar"); // Get progress name
-                                var span = document.getElementById(name + "span"); // Get span
-                                var votes = document.getElementById(name + "votes");  // Get vote counter
-                                var currentwidth = parseInt((progressbar.style.width).substring(0, progressbar.style.width.length - 1));
+    function updateData(data) {
+        $.each(data, function (name, content) {
+            var width = content[0], count = content[1];
+            var newwidth = Math.round(width);
+            var progressbar = document.getElementById(name + "progressbar"); // Get progress name
+            var span = document.getElementById(name + "span"); // Get span
+            var votes = document.getElementById(name + "votes");  // Get vote counter
+            var currentwidth = parseInt((progressbar.style.width).substring(0, progressbar.style.width.length - 1));
 
-                                if (newwidth === currentwidth) {}
-                                else {
-                                    if (newwidth > currentwidth) { // If the new width > old width, flash green.
-                                        $(progressbar).switchClass("progress-bar-info", "progress-bar-success");
-                                    }
-                                    else if (newwidth < currentwidth){ // If new width < old width, flash orange.
-                                        $(progressbar).switchClass("progress-bar-info", "progress-bar-warning");
-                                    }
+            if (newwidth === currentwidth) {
+            }
+            else {
+                if (newwidth > currentwidth) { // If the new width > old width, flash green.
+                    $(progressbar).switchClass("progress-bar-info", "progress-bar-success");
+                }
+                else if (newwidth < currentwidth) { // If new width < old width, flash orange.
+                    $(progressbar).switchClass("progress-bar-info", "progress-bar-warning");
+                }
 
-                                    $(votes).text(count + " Votes");
-                                    $(document.getElementById(name + " main")).attr("data-value", newwidth); // Change data value
-                                    $(span).text(newwidth + "%"); // Change text
-                                    $(progressbar).animate({"width": (newwidth + "%") }); // Change width
+                $(votes).text(count + " Votes");
+                $(document.getElementById(name + " main")).attr("data-value", newwidth); // Change data value
+                $(span).text(newwidth + "%"); // Change text
+                $(progressbar).animate({"width": (newwidth + "%")}); // Change width
 
-                                    var $well = $(".well");
-                                    $well.find(".bardiv").sort(function (a, b) { // Sort the progress bars by value
-                                        return b.dataset.value - a.dataset.value;
-                                    }).appendTo($well);
+                var $well = $(".well");
+                $well.find(".bardiv").sort(function (a, b) { // Sort the progress bars by value
+                    return b.dataset.value - a.dataset.value;
+                }).appendTo($well);
 
-                                    setTimeout(function() { // Reset colours.
-                                        $(progressbar).switchClass("progress-bar-success", "progress-bar-info");
-                                        $(progressbar).switchClass("progress-bar-warning", "progress-bar-info");
-                                    },500);
-                            }});
+                setTimeout(function () { // Reset colours.
+                    $(progressbar).switchClass("progress-bar-success", "progress-bar-info");
+                    $(progressbar).switchClass("progress-bar-warning", "progress-bar-info");
+                }, 500);
+            }
+        });
+    }
 
-                        });
-            },
-    1500);
+    if (!!window.EventSource) {
+        console.log("Server Sent Events avaliable.");
+        var source = new EventSource(window.location.href + "/stream");
+        source.addEventListener("message", function (json) {
+            var cleanjson = json.data.substring(2, json.data.length-1);
+            var data = JSON.parse(cleanjson);
+            updateData(data);
+        }, false)
+    } else {
+        console.log("Server Sent Events not avaliable.");
+        setInterval(
+                function () {
+                    $.getJSON(
+                            window.location.href + "/json",
+                            {},
+                            function (data) {
+                                updateData(data);
+                            }
+                    )},
+                1500);
+    }
 </script>
 {% endblock %}
