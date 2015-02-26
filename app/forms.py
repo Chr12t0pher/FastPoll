@@ -2,6 +2,7 @@ from wtforms import StringField, BooleanField, TextAreaField
 from wtforms.validators import ValidationError
 from flask_wtf import Form
 from flask import flash
+from app.static.profanity import profanity
 
 
 class CreatePoll(Form):
@@ -24,3 +25,16 @@ class CreatePoll(Form):
         if len(options) > 10:
             flash("Please have no more than 10 options.", "info")
             raise ValidationError("Too Many Options")
+
+    def validate_title(self, field):
+        if self.public.data is False:
+            return
+        if self.title.data in profanity:
+            flash("Please do not use profanity in public polls.", "danger")
+            raise ValidationError("Profanity")
+        if self.desc.data in profanity:
+            flash("Please do not use profanity in public polls.", "danger")
+            raise ValidationError("Profanity")
+        if self.options.data in profanity:
+            flash("Please do not use profanity in public polls.", "danger")
+            raise ValidationError("Profanity")
