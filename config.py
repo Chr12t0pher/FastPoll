@@ -7,6 +7,9 @@ if environ.get("SECRET_KEY") is None:
 else:
     SECRET_KEY = environ["SECRET_KEY"]
 
-basedir = path.abspath(path.dirname(__file__))
-SQLALCHEMY_DATABASE_URI = "sqlite:///" + path.join(basedir, "database.db")
-SQLALCHEMY_MIGRATE_REPO = path.join(basedir, "db_repo")
+if environ.get("FASTPOLL_MYSQL") is None:
+    basedir = path.abspath(path.dirname(__file__))
+    SQLALCHEMY_DATABASE_URI = "sqlite:///" + path.join(basedir, "database.db")
+    SQLALCHEMY_MIGRATE_REPO = path.join(basedir, "db_repo")
+else:
+    SQLALCHEMY_DATABASE_URI = environ["FASTPOLL_MYSQL"]
