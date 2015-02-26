@@ -15,9 +15,6 @@ class FastPollTestCase(unittest.TestCase):
         cls.app = app.test_client()
         db.create_all()
 
-    def test_isOnline(self):
-        assert "FastPoll" in str(self.app.get("").data)  # The site loads successfully.
-
     def test_Poll(self):
         new_poll = Poll(id=str(uuid.uuid4().int >> 64),
                         title="Title",
@@ -38,8 +35,6 @@ class FastPollTestCase(unittest.TestCase):
         db.session.add(test_poll)
         db.session.commit()
         assert loads(Poll.query.first().votes)["Option 1"] == 1  # We can get a Poll and vote on it.
-
-
 
 
 if __name__ == "__main__":
