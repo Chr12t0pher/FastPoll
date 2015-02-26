@@ -3,20 +3,21 @@
 {% block title %}{{ poll.title }} - Vote{% endblock %}
 {% block content %}
     <div class="jumbotron">
-    <h1>{{ poll.title }}</h1>
-    <p>{{ poll.desc }}</p>
+        <h1>{{ poll.title }}</h1>
+        <p>{{ poll.desc }}</p>
     </div>
-    <div class="well">
-    <form class="form-horizontal" method="POST" action="">
-        <fieldset>
-            <div class="form-group">
-            {% for option in poll.load_options() %}
-                <input type="radio" name="option" value="{{ option }}" required="true" id="{{ option }}"><label for="{{ option }}">{{ option }}</label><br>
-            {% endfor %}
-            </div>
-            <div class="form-group">
-                <input type="submit" class="btn btn-large btn-primary">
-            </div>
-        </fieldset>
-    </form></div>
+    <div class="well" style="position: relative;">
+        <form class="form-horizontal" method="POST" action="">
+            <fieldset>
+                <div class="row">
+                    <div class="form-group col-md-6" style="font-size: large;margin-bottom: 0px;margin-left: 0px;">
+                        {% for option in poll.load_options() %}
+                            <input type="radio" name="option" value="{{ option }}" required="true" id="{{ option }}"><label for="{{ option }}">{{ option }}</label><br>
+                        {% endfor %}
+                    </div>
+            </fieldset>
+                    <input type="submit" class="btn btn-lg btn-primary pull-right" style="position:absolute;bottom: 0;right: 0;margin: 20px;">
+                </div>
+        </form>
+    </div>
 {% endblock %}
